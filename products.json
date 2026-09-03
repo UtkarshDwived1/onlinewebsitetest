@@ -1,0 +1,21 @@
+[
+  {"id":"m-haldi-50","category":"masala","name":"Haldi (Turmeric)","size":"50g","price":30},
+  {"id":"m-haldi-100","category":"masala","name":"Haldi (Turmeric)","size":"100g","price":55},
+  {"id":"m-haldi-200","category":"masala","name":"Haldi (Turmeric)","size":"200g","price":100},
+
+  {"id":"m-garam-50","category":"masala","name":"Garam Masala","size":"50g","price":40},
+  {"id":"m-garam-100","category":"masala","name":"Garam Masala","size":"100g","price":75},
+  {"id":"m-garam-500","category":"masala","name":"Garam Masala","size":"500g","price":300},
+
+  {"id":"m-mirch-50","category":"masala","name":"Lal Mirch (Red Chilli)","size":"50g","price":35},
+  {"id":"m-mirch-100","category":"masala","name":"Lal Mirch (Red Chilli)","size":"100g","price":65},
+
+  {"id":"m-dhaniya-50","category":"masala","name":"Dhaniya Powder (Coriander)","size":"50g","price":28},
+  {"id":"m-dhaniya-100","category":"masala","name":"Dhaniya Powder (Coriander)","size":"100g","price":50},
+
+  {"id":"m-jeera-50","category":"masala","name":"Jeera (Cumin)","size":"50g","price":45},
+  {"id":"m-jeera-100","category":"masala","name":"Jeera (Cumin)","size":"100g","price":85},
+
+  {"id":"m-chat-50","category":"masala","name":"Chat Masala","size":"50g","price":20},
+  {"id":"m-chat-100","category":"masala","name":"Chat Masala","size":"100g","price":38}
+]

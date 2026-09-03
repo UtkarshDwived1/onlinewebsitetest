@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usha Enterprises - Product List</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1>Usha Enterprises</h1>
+    <p class="tag">Masala & Spices - Simple Ordering</p>
+  </header>
+
+  <main>
+    <section id="products" class="products-grid" aria-live="polite">
+      <!-- product cards injected here -->
+    </section>
+
+    <aside class="cart">
+      <h2>Cart</h2>
+      <div id="cart-items"></div>
+      <div class="cart-summary">
+        <div>Total: <span id="total">₹0</span></div>
+        <button id="checkout-btn" class="btn" disabled>Checkout</button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Checkout modal -->
+  <div id="checkout-modal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <button id="close-modal" class="close">×</button>
+      <h3>Checkout</h3>
+      <form id="checkout-form">
+        <div class="row">
+          <input name="firstName" placeholder="First name" required>
+          <input name="lastName" placeholder="Last name" required>
+        </div>
+        <textarea name="address" placeholder="Address" required></textarea>
+        <input name="phone" placeholder="Phone number" required>
+        <div class="row">
+          <button type="submit" class="btn">Place order & Generate PDF</button>
+          <button type="button" id="cancel" class="btn btn-secondary">Cancel</button>
+        </div>
+      </form>
+
+      <div id="order-result" class="order-result" hidden>
+        <p id="order-msg"></p>
+        <a id="download-pdf" class="btn" download>Download PDF</a>
+        <button id="wa-share" class="btn btn-whatsapp">Open WhatsApp (share message)</button>
+        <p class="hint">After downloading the PDF: attach and send it to shanukumar on WhatsApp.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <small>Built for Usha Enterprises — static demo. Edit products.json to update prices weekly.</small>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

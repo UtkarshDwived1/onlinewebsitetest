@@ -1,0 +1,34 @@
+/* styles.css - simple responsive layout */
+:root{--accent:#d35400;--muted:#666}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;color:#222}
+.site-header{background:linear-gradient(90deg,#ffefdb,#fff);padding:1rem 1.25rem;border-bottom:1px solid #eee}
+.site-header h1{margin:0;font-size:1.5rem}
+.tag{margin:0;color:var(--muted);font-size:0.9rem}
+main{display:flex;gap:1rem;padding:1rem;align-items:flex-start}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;flex:1}
+.card{border:1px solid #e6e6e6;padding:0.75rem;border-radius:8px;background:#fff}
+.card h4{margin:0 0 0.25rem}
+.card .size{font-size:0.85rem;color:var(--muted)}
+.price{font-weight:700;margin-top:0.5rem}
+.controls{display:flex;align-items:center;gap:0.5rem;margin-top:0.5rem}
+.controls button{width:32px;height:32px;border-radius:6px;border:1px solid #ddd;background:#fafafa;cursor:pointer}
+.qty{min-width:24px;text-align:center}
+.cart{width:320px;border-left:1px solid #f0f0f0;padding-left:1rem}
+.cart h2{margin-top:0}
+.cart-item{display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px dashed #f3f3f3}
+.cart-summary{margin-top:1rem;display:flex;justify-content:space-between;align-items:center}
+.btn{background:var(--accent);color:#fff;border:none;padding:0.6rem 0.9rem;border-radius:6px;cursor:pointer}
+.btn[disabled]{opacity:0.5;cursor:default}
+.btn-secondary{background:#888}
+.btn-whatsapp{background:#25D366}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;padding:1rem}
+.modal[aria-hidden="true"]{display:none}
+.modal-content{background:#fff;padding:1rem;border-radius:8px;max-width:720px;width:100%}
+.close{background:transparent;border:none;font-size:1.4rem;float:right;cursor:pointer}
+.row{display:flex;gap:0.5rem}
+input,textarea{width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:6px}
+textarea{min-height:80px}
+.order-result{margin-top:1rem}
+.hint{color:var(--muted);font-size:0.9rem}
+@media (max-width:800px){main{flex-direction:column}.cart{width:100%;border-left:none;border-top:1px solid #f0f0f0;padding-top:1rem}}
