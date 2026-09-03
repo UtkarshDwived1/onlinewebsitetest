@@ -1,4 +1,4 @@
-// script.js - load products.json, handle cart and PDF generation (updated validations & small UX)
+// script.js - UI enhancements: search, filters, cart persistence, subtle animations
 const PRODUCTS_PATH = 'products.json';
 let products = [];
 const cart = new Map();
@@ -8,13 +8,14 @@ function money(n){return `₹${n.toFixed(2)}`}
 async function loadProducts(){
   const res = await fetch(PRODUCTS_PATH);
   products = await res.json();
-  renderProducts();
+  renderProducts(products);
+  loadCartFromStorage();
 }
 
-function renderProducts(){
+function renderProducts(list){
   const container = document.getElementById('products');
   container.innerHTML = '';
-  products.forEach(p => {
+  list.forEach(p => {
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
@@ -26,9 +27,15 @@ function renderProducts(){
         <button aria-label="decrease" data-id="${p.id}" data-action="dec">-</button>
         <div class="qty" id="qty-${p.id}">0</div>
         <button aria-label="increase" data-id="${p.id}" data-action="inc">+</button>
+        <button class="add-btn" data-id="${p.id}" data-action="inc">Add</button>
       </div>
     `;
     container.appendChild(card);
+  });
+  // restore visible quantities
+  cart.forEach((qty,id)=>{
+    const el = document.getElementById(`qty-${id}`);
+    if(el) el.textContent = qty;
   });
 }
 
@@ -50,6 +57,7 @@ function updateCartDisplay(){
   });
   document.getElementById('total').textContent = money(total);
   document.getElementById('checkout-btn').disabled = cart.size===0;
+  saveCartToStorage();
 }
 
 function changeQty(id, delta){
@@ -61,7 +69,7 @@ function changeQty(id, delta){
   updateCartDisplay();
 }
 
-// event delegation for + and - buttons
+// event delegation for + and - buttons and add button
 document.addEventListener('click', e => {
   const btn = e.target.closest('button');
   if(!btn) return;
@@ -71,6 +79,26 @@ document.addEventListener('click', e => {
     if(action==='inc') changeQty(id, 1);
     if(action==='dec') changeQty(id, -1);
   }
+});
+
+// search
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  const filtered = products.filter(p => (p.name + ' ' + p.size + ' ' + p.category).toLowerCase().includes(q));
+  renderProducts(filtered);
+  updateCartDisplay();
+});
+
+// filters
+document.querySelectorAll('.filter').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    if(f==='all') renderProducts(products); else renderProducts(products.filter(p=>p.category===f));
+    updateCartDisplay();
+  });
 });
 
 // Checkout modal handlers
@@ -89,9 +117,9 @@ checkoutBtn.addEventListener('click', () => {
   document.getElementById('checkout-form').hidden = false;
   orderResult.hidden = true;
 });
-closeModal.addEventListener('click', close);
-cancelBtn.addEventListener('click', close);
-function close(){
+closeModal.addEventListener('click', closeModalFn);
+cancelBtn.addEventListener('click', closeModalFn);
+function closeModalFn(){
   modal.setAttribute('aria-hidden','true');
   modal.style.display = 'none';
 }
@@ -166,6 +194,40 @@ form.addEventListener('submit', async (ev) =>{
 
   // keep the order in memory (could be sent to server later)
   window.lastOrder = order;
+});
+
+// cart persistence
+function saveCartToStorage(){
+  const obj = {};
+  cart.forEach((v,k)=>obj[k]=v);
+  localStorage.setItem('uw_cart', JSON.stringify(obj));
+}
+function loadCartFromStorage(){
+  try{
+    const raw = localStorage.getItem('uw_cart');
+    if(raw){
+      const obj = JSON.parse(raw);
+      Object.keys(obj).forEach(k=>cart.set(k, obj[k]));
+      updateCartDisplay();
+      // sync qty displays
+      cart.forEach((qty,id)=>{
+        const el = document.getElementById(`qty-${id}`);
+        if(el) el.textContent = qty;
+      });
+    }
+  }catch(e){console.warn('cart load failed',e)}
+}
+
+// small UX: shop now scroll
+document.getElementById('shop-now').addEventListener('click', ()=>{
+  document.getElementById('products').scrollIntoView({behavior:'smooth'});
+});
+
+// theme toggle (simple)
+document.getElementById('theme-toggle').addEventListener('click', ()=>{
+  document.body.classList.toggle('dark');
+  const el = document.getElementById('theme-toggle');
+  el.textContent = document.body.classList.contains('dark') ? '☀️' : '🌙';
 });
 
 // initialize

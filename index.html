@@ -3,35 +3,77 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Usha Enterprises - Product List</title>
+  <title>Usha Enterprises — Fresh Masala & Spices</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="site-header">
+    <div class="nav">
+      <div class="brand">
+        <div class="logo">UE</div>
+        <div class="brand-text">
+          <div class="name">Usha Enterprises</div>
+          <div class="sub">Fresh Masala & Spices</div>
+        </div>
+      </div>
+      <nav class="nav-actions">
+        <input id="search" class="search" placeholder="Search masala, size..." aria-label="Search products">
+        <button class="icon-btn" id="theme-toggle" title="Toggle theme">🌙</button>
+      </nav>
+    </div>
+
     <div class="hero">
       <div class="hero-inner">
-        <h1>Usha Enterprises</h1>
-        <p class="tag">Fresh Masala & Spices — Crafted for your kitchen</p>
+        <h1>Bring home the aroma of fresh masala</h1>
+        <p>Small-batch blends, affordable sizes — choose your pack and place an order in seconds.</p>
+        <div class="hero-cta">
+          <button id="shop-now" class="btn btn-cta">Shop Masala</button>
+          <a class="muted-link" href="#products">View products</a>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <!-- decorative pattern -->
+        <svg width="240" height="240" viewBox="0 0 240 240" class="spice-blob">
+          <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#ffd9b3" /><stop offset="1" stop-color="#ffb085"/></linearGradient></defs>
+          <circle cx="120" cy="120" r="100" fill="url(#g1)" opacity="0.95"/>
+        </svg>
       </div>
     </div>
   </header>
 
   <main>
-    <section id="products" class="products-grid" aria-live="polite">
-      <!-- product cards injected here -->
-    </section>
+    <div class="content">
+      <aside class="filters">
+        <h3>Categories</h3>
+        <ul>
+          <li><button data-filter="all" class="filter active">All</button></li>
+          <li><button data-filter="masala" class="filter">Masala</button></li>
+        </ul>
+        <div class="promo">
+          <h4>Weekly special</h4>
+          <p>Get fresh Haldi 100g at ₹49 this week.</p>
+        </div>
+      </aside>
 
-    <aside class="cart">
-      <div class="cart-top">
-        <h2>Cart</h2>
-        <div class="cart-note">Tap + to add items • Click Checkout when done</div>
-      </div>
-      <div id="cart-items" class="cart-items"></div>
-      <div class="cart-summary">
-        <div class="total-wrap"><div class="label">Total</div><div class="amount" id="total">₹0</div></div>
-        <button id="checkout-btn" class="btn" disabled>Checkout</button>
-      </div>
-    </aside>
+      <section id="products" class="products-grid" aria-live="polite">
+        <!-- product cards injected here -->
+      </section>
+
+      <aside class="cart">
+        <div class="cart-top">
+          <h2>Cart</h2>
+          <div class="cart-note">Tap + to add items • Click Checkout when done</div>
+        </div>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="cart-summary">
+          <div class="total-wrap"><div class="label">Total</div><div class="amount" id="total">₹0</div></div>
+          <button id="checkout-btn" class="btn" disabled>Checkout</button>
+        </div>
+      </aside>
+    </div>
   </main>
 
   <!-- Checkout modal -->
