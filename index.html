@@ -8,8 +8,12 @@
 </head>
 <body>
   <header class="site-header">
-    <h1>Usha Enterprises</h1>
-    <p class="tag">Masala & Spices - Simple Ordering</p>
+    <div class="hero">
+      <div class="hero-inner">
+        <h1>Usha Enterprises</h1>
+        <p class="tag">Fresh Masala & Spices — Crafted for your kitchen</p>
+      </div>
+    </div>
   </header>
 
   <main>
@@ -18,10 +22,13 @@
     </section>
 
     <aside class="cart">
-      <h2>Cart</h2>
-      <div id="cart-items"></div>
+      <div class="cart-top">
+        <h2>Cart</h2>
+        <div class="cart-note">Tap + to add items • Click Checkout when done</div>
+      </div>
+      <div id="cart-items" class="cart-items"></div>
       <div class="cart-summary">
-        <div>Total: <span id="total">₹0</span></div>
+        <div class="total-wrap"><div class="label">Total</div><div class="amount" id="total">₹0</div></div>
         <button id="checkout-btn" class="btn" disabled>Checkout</button>
       </div>
     </aside>
@@ -38,7 +45,7 @@
           <input name="lastName" placeholder="Last name" required>
         </div>
         <textarea name="address" placeholder="Address" required></textarea>
-        <input name="phone" placeholder="Phone number" required>
+        <input name="phone" placeholder="Phone number (10 digits)" required maxlength="10" pattern="\d{10}" inputmode="numeric" title="Enter 10 digit phone number">
         <div class="row">
           <button type="submit" class="btn">Place order & Generate PDF</button>
           <button type="button" id="cancel" class="btn btn-secondary">Cancel</button>
