@@ -1,9 +1,22 @@
 // script.js - UI enhancements: search, filters, cart persistence, subtle animations
+// Added: visit counter (stored in localStorage) and removed product thumbs/images
 const PRODUCTS_PATH = 'products.json';
 let products = [];
 const cart = new Map();
 
 function money(n){return `₹${n.toFixed(2)}`}
+
+// visit counter: increments on each page load (stored per-browser in localStorage)
+function updateVisitCounter(){
+  try{
+    const key = 'uw_visits';
+    const raw = localStorage.getItem(key) || '0';
+    const v = Math.max(0, parseInt(raw,10)) + 1;
+    localStorage.setItem(key, String(v));
+    const el = document.getElementById('visit-count');
+    if(el) el.textContent = v;
+  }catch(e){console.warn('visit counter failed', e)}
+}
 
 async function loadProducts(){
   const res = await fetch(PRODUCTS_PATH);
@@ -19,7 +32,6 @@ function renderProducts(list){
     const card = document.createElement('div');
     card.className = 'card';
     card.innerHTML = `
-      <div class="thumb">🌶️</div>
       <h4>${p.name}</h4>
       <div class="meta"><div class="size">${p.size}</div><div class="cat">${p.category}</div></div>
       <div class="price">${money(p.price)}</div>
@@ -83,12 +95,14 @@ document.addEventListener('click', e => {
 
 // search
 const searchInput = document.getElementById('search');
-searchInput.addEventListener('input', () => {
-  const q = searchInput.value.trim().toLowerCase();
-  const filtered = products.filter(p => (p.name + ' ' + p.size + ' ' + p.category).toLowerCase().includes(q));
-  renderProducts(filtered);
-  updateCartDisplay();
-});
+if(searchInput){
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = products.filter(p => (p.name + ' ' + p.size + ' ' + p.category).toLowerCase().includes(q));
+    renderProducts(filtered);
+    updateCartDisplay();
+  });
+}
 
 // filters
 document.querySelectorAll('.filter').forEach(btn=>{
@@ -117,8 +131,8 @@ checkoutBtn.addEventListener('click', () => {
   document.getElementById('checkout-form').hidden = false;
   orderResult.hidden = true;
 });
-closeModal.addEventListener('click', closeModalFn);
-cancelBtn.addEventListener('click', closeModalFn);
+if(closeModal) closeModal.addEventListener('click', closeModalFn);
+if(cancelBtn) cancelBtn.addEventListener('click', closeModalFn);
 function closeModalFn(){
   modal.setAttribute('aria-hidden','true');
   modal.style.display = 'none';
@@ -126,75 +140,77 @@ function closeModalFn(){
 
 // form submit with phone validation
 const form = document.getElementById('checkout-form');
-form.addEventListener('submit', async (ev) =>{
-  ev.preventDefault();
-  const data = new FormData(form);
-  const customer = {
-    firstName: (data.get('firstName')||'').trim(),
-    lastName: (data.get('lastName')||'').trim(),
-    address: (data.get('address')||'').trim(),
-    phone: (data.get('phone')||'').trim()
-  };
+if(form){
+  form.addEventListener('submit', async (ev) =>{
+    ev.preventDefault();
+    const data = new FormData(form);
+    const customer = {
+      firstName: (data.get('firstName')||'').trim(),
+      lastName: (data.get('lastName')||'').trim(),
+      address: (data.get('address')||'').trim(),
+      phone: (data.get('phone')||'').trim()
+    };
 
-  // validate phone: must be 10 digits
-  const digits = customer.phone.replace(/\D/g,'');
-  if(digits.length !== 10){
-    alert('Please enter a valid 10-digit phone number.');
-    return;
-  }
-  customer.phone = digits;
+    // validate phone: must be 10 digits
+    const digits = customer.phone.replace(/\D/g,'');
+    if(digits.length !== 10){
+      alert('Please enter a valid 10-digit phone number.');
+      return;
+    }
+    customer.phone = digits;
 
-  const orderId = 'ORD-' + Math.random().toString(36).substring(2,10).toUpperCase();
-  const items = [];
-  let total = 0;
-  cart.forEach((qty,id)=>{
-    const p = products.find(x=>x.id===id);
-    if(p){ items.push({...p, qty}); total += p.price*qty; }
+    const orderId = 'ORD-' + Math.random().toString(36).substring(2,10).toUpperCase();
+    const items = [];
+    let total = 0;
+    cart.forEach((qty,id)=>{
+      const p = products.find(x=>x.id===id);
+      if(p){ items.push({...p, qty}); total += p.price*qty; }
+    });
+
+    const order = {orderId, customer, items, total, createdAt: new Date().toISOString()};
+
+    // generate PDF using jsPDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:'pt'});
+    doc.setFontSize(16);
+    doc.text('Usha Enterprises - Order Invoice', 40, 60);
+    doc.setFontSize(11);
+    doc.text(`Order ID: ${orderId}`, 40, 90);
+    doc.text(`Name: ${customer.firstName} ${customer.lastName}`, 40, 110);
+    doc.text(`Phone: ${customer.phone}`, 40, 130);
+    doc.text(`Address: ${customer.address}`, 40, 150);
+
+    doc.text('Items:', 40, 180);
+    let y = 200;
+    items.forEach(it=>{
+      const line = `${it.name} (${it.size}) x ${it.qty} - ₹${(it.price*it.qty).toFixed(2)}`;
+      doc.text(line, 40, y);
+      y += 16;
+      if(y>700){ doc.addPage(); y=40; }
+    });
+    doc.text(`Total: ₹${total.toFixed(2)}`, 40, y+16);
+
+    const pdfBlob = doc.output('blob');
+    const url = URL.createObjectURL(pdfBlob);
+    downloadPdf.href = url;
+    downloadPdf.download = `${orderId}_invoice.pdf`;
+
+    // show order result
+    form.hidden = true;
+    orderResult.hidden = false;
+    orderMsg.textContent = `Order ${orderId} created. Download the PDF then attach & send it to shanukumar on WhatsApp.`;
+
+    // prepare whatsapp message (generic share link)
+    const waText = encodeURIComponent(`Hello Shanu Kumar, I have placed an order with Order ID: ${orderId}. I have downloaded the invoice PDF — please attach it here and confirm.\n\nName: ${customer.firstName} ${customer.lastName}\nPhone: ${customer.phone}\nTotal: ₹${total.toFixed(2)}`);
+    waShare.onclick = () => {
+      const waUrl = `https://wa.me/?text=${waText}`;
+      window.open(waUrl, '_blank');
+    };
+
+    // keep the order in memory (could be sent to server later)
+    window.lastOrder = order;
   });
-
-  const order = {orderId, customer, items, total, createdAt: new Date().toISOString()};
-
-  // generate PDF using jsPDF
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({unit:'pt'});
-  doc.setFontSize(16);
-  doc.text('Usha Enterprises - Order Invoice', 40, 60);
-  doc.setFontSize(11);
-  doc.text(`Order ID: ${orderId}`, 40, 90);
-  doc.text(`Name: ${customer.firstName} ${customer.lastName}`, 40, 110);
-  doc.text(`Phone: ${customer.phone}`, 40, 130);
-  doc.text(`Address: ${customer.address}`, 40, 150);
-
-  doc.text('Items:', 40, 180);
-  let y = 200;
-  items.forEach(it=>{
-    const line = `${it.name} (${it.size}) x ${it.qty} - ₹${(it.price*it.qty).toFixed(2)}`;
-    doc.text(line, 40, y);
-    y += 16;
-    if(y>700){ doc.addPage(); y=40; }
-  });
-  doc.text(`Total: ₹${total.toFixed(2)}`, 40, y+16);
-
-  const pdfBlob = doc.output('blob');
-  const url = URL.createObjectURL(pdfBlob);
-  downloadPdf.href = url;
-  downloadPdf.download = `${orderId}_invoice.pdf`;
-
-  // show order result
-  form.hidden = true;
-  orderResult.hidden = false;
-  orderMsg.textContent = `Order ${orderId} created. Download the PDF then attach & send it to shanukumar on WhatsApp.`;
-
-  // prepare whatsapp message (generic share link)
-  const waText = encodeURIComponent(`Hello Shanu Kumar, I have placed an order with Order ID: ${orderId}. I have downloaded the invoice PDF — please attach it here and confirm.\n\nName: ${customer.firstName} ${customer.lastName}\nPhone: ${customer.phone}\nTotal: ₹${total.toFixed(2)}`);
-  waShare.onclick = () => {
-    const waUrl = `https://wa.me/?text=${waText}`;
-    window.open(waUrl, '_blank');
-  };
-
-  // keep the order in memory (could be sent to server later)
-  window.lastOrder = order;
-});
+}
 
 // cart persistence
 function saveCartToStorage(){
@@ -231,6 +247,7 @@ document.getElementById('theme-toggle').addEventListener('click', ()=>{
 });
 
 // initialize
+updateVisitCounter();
 loadProducts().catch(err=>console.error(err));
 
 // Update cart when products change (e.g. after load) to keep qtys in UI
